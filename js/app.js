@@ -11,8 +11,8 @@ var runLevel = function(score) {
     }
     if (score >= 5) {
         level = 3;
+        removeBugs(globalEnemyCount-5);
         insertEnemies(2, 700);
-        removeBugs(globalEnemyCount);
     }
     if (score > 10) {
         level = 4;
@@ -108,6 +108,7 @@ var insertEnemies = function (enemiesQtd, speed) {
     console.log(enemyCount);
     console.log("Enemy Count Global:");
     console.log(globalEnemyCount);
+    console.log(allEnemies);
 };
 runLevel(score);
 // This instantiate the Player
@@ -135,7 +136,4 @@ var resetGame = function () {
 };
 var removeBugs = function (num) {
     allEnemies.splice(0,num);
-    allEnemies.forEach(function(enemy) {
-            enemy.render();
-        });
 }
