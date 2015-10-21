@@ -46,7 +46,7 @@ var Engine = (function(global) {
          * our update function since it may be used for smooth animation.
          */
         update(dt);
-        render();
+        render(level);
 
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
@@ -103,11 +103,12 @@ var Engine = (function(global) {
      * they are flipbooks creating the illusion of animation but in reality
      * they are just drawing the entire screen over and over.
      */
-    function render() {
+    function render(level) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
-        var rowImages = [
+         if (level < 3) {
+            var rowImages = [
                 'images/water-block.png',   // Top row is water
                 'images/stone-block.png',   // Row 1 of 3 of stone
                 'images/stone-block.png',   // Row 2 of 3 of stone
@@ -118,7 +119,20 @@ var Engine = (function(global) {
             numRows = 6,
             numCols = 5,
             row, col;
-
+            }
+            else {
+            var rowImages = [
+                'images/red-water-block.png',   // Top row is water
+                'images/stone-block-hell.png',   // Row 1 of 3 of stone
+                'images/stone-block-hell.png',   // Row 2 of 3 of stone
+                'images/stone-block-hell.png',   // Row 3 of 3 of stone
+                'images/grass-block-hell.png',   // Row 1 of 2 of grass
+                'images/grass-block-hell.png'    // Row 2 of 2 of grass
+            ],
+            numRows = 6,
+            numCols = 5,
+            row, col;
+            };
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
          * portion of the "grid"
@@ -160,7 +174,7 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        // TODO: Game Over Screen
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -168,10 +182,14 @@ var Engine = (function(global) {
      * all of these images are properly loaded our game will start.
      */
     Resources.load([
+        'images/stone-block-hell.png',
         'images/stone-block.png',
+        'images/red-water-block.png',
         'images/water-block.png',
         'images/grass-block.png',
+        'images/grass-block-hell.png',
         'images/enemy-bug.png',
+        'images/enemy-bug-devil.png',
         'images/char-boy.png'
     ]);
     Resources.onReady(init);
