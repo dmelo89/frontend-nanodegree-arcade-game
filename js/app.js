@@ -11,11 +11,12 @@ var runLevel = function(score) {
     }
     if (score >= 5) {
         level = 3;
-        removeBugs(globalEnemyCount-5);
+        removeBugs(2); // TODO: Make them dissapear smooth
         insertEnemies(2, 700);
     }
     if (score > 10) {
         level = 4;
+        removeBugs(3); // TODO: Make them dissapear smooth
         insertEnemies(3, 1200);
     }
     console.log(level);
@@ -25,6 +26,8 @@ var Enemy = function (x, y, speed) {
     // Enemy positioning variables
     this.x = x;
     this.y = y;
+    this.width = 98;
+    this.height = 77;
     // Random enemy speed multiplied according to the game difficulty
     this.speed = Math.random() * speed; // TODO: Speed variable that makes the speed changes as the player pass the "levels"
     // The image/sprite for our enemies, this uses a helper present in resources.js
@@ -36,12 +39,16 @@ var Enemy = function (x, y, speed) {
 Enemy.prototype.update = function (dt) {
     // If the enemy aproaches the player the game resets and score is subtracted
     // minDistance is the minimum distance that the enemy can be from the hero
-    var minDistance = 49; // Difference betwen the center point and the end of the bug, besides the file having 101px of width, the bug occupies only 98px of the image
+    var minDistance = 70; // Difference betwen the center point and the end of the bug, besides the file having 101px of width, the bug occupies only 98px of the image
     // Here we calculate with the variables if the enemy is close to the player X
     // and if in the same Y line
-    if (player.x >= this.x - minDistance && player.x <= this.x + minDistance && player.y >= this.y - minDistance && player.y <= this.y + minDistance) {
-        resetGame(); // As the player collides the game resets
-    }
+    // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+    if (this.x < player.x + minDistance &&
+   this.x + minDistance > player.x &&
+   this.y < player.y + minDistance &&
+   minDistance + this.y > player.y) {
+    resetGame(); // As the player collides the game resets
+}
     return this.x <= 550 // This checks if the bug is in the screen
         ? this.x += this.speed * dt  // if true keeps moving
         : this.x = -98;     // if not on the screen move back to the beginning
