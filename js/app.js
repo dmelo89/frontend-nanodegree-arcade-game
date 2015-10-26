@@ -1,6 +1,9 @@
 // Sets initial level & score
 level = 4;
 score = 0;
+// 
+    var alpha = 0,   /// current alpha value
+    delta = 0.1; /// delta = speed
 // Score keeping and level function
 var runLevel = function(score) {
     console.log(score);
@@ -11,12 +14,12 @@ var runLevel = function(score) {
     }
     if (score >= 5) {
         level = 3;
-        removeBugs(2); // TODO: Make them dissapear smooth
+        removeEnemies(2); // TODO: Make them dissapear smooth
         insertEnemies(2, 700);
     }
     if (score > 10) {
         level = 4;
-        removeBugs(3); // TODO: Make them dissapear smooth
+        removeEnemies(3); // TODO: Make them dissapear smooth
         insertEnemies(3, 1200);
     }
     console.log(level);
@@ -53,8 +56,22 @@ Enemy.prototype.update = function (dt) {
         ? this.x += this.speed * dt  // if true keeps moving
         : this.x = -98;     // if not on the screen move back to the beginning
 };
+// This makes the enemy disapear in smooth way
+Enemy.prototype.dieSmooth = function (dt) {
+  console.log("dieSmooth rodou");
+          return this.x <= 550 // This checks if the bug is in the screen
+        ? this.x += this.speed * dt  // if true keeps moving
+        : this.x = 7000;     // if not on the screen moves away
+}
 // This makes the render function available for both Enemy and Player objects
 Object.prototype.render = function () {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+Object.prototype.renderOut = function () {
+  console.log("renderOut rodou");
+    ctx.clearRect(this.x, this.y, this.width, this.height);
+    if (alpha <= 0 || alpha >= 1) delta = -delta;
+    ctx.globalAlpha = alpha;
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 // Player Class
@@ -96,11 +113,10 @@ Player.prototype.handleInput = function (e) {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var allEnemies = [];
+var deadEnemies = [];
 var globalEnemyCount = 0;
 var insertEnemies = function (enemiesQtd, speed) {
     var enemyCount = 0;
-    console.log("Enemy Count:");
-    console.log(enemyCount);
     // This sets the vertical position for the enemies
     var enemyPositionsY = [
         60, 150, 230
@@ -111,11 +127,6 @@ var insertEnemies = function (enemiesQtd, speed) {
         enemyCount++
         globalEnemyCount = globalEnemyCount + enemyCount;
     }
-    console.log("Enemy Count After:");
-    console.log(enemyCount);
-    console.log("Enemy Count Global:");
-    console.log(globalEnemyCount);
-    console.log(allEnemies);
 };
 runLevel(score);
 // This instantiate the Player
@@ -141,6 +152,11 @@ var resetGame = function () {
     player.y = 380;
     // TODO: Score update function
 };
-var removeBugs = function (num) {
-    allEnemies.splice(0,num);
+// This function removes older enemies for the game still be playble
+var removeEnemies = function (num) {
+    var deadEnemies = allEnemies.splice(0,num);
+    console.log("Live Enemies:");
+    console.log(allEnemies);
+    console.log("Dead Enemies:");
+    console.log(deadEnemies); 
 }
