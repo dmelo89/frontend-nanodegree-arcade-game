@@ -91,13 +91,14 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
+        deadEnemies.forEach(function(enemy) {
+            enemy.dieOut(dt);
+        });
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        deadEnemies.forEach(function(enemy) {
-            enemy.dieSmooth(dt);
-        });
         player.update();
+        showScore();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -110,7 +111,8 @@ var Engine = (function(global) {
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
-         if (level < 3) {
+         ctx.globalAlpha = 1;
+         if (level < 10) {
             var rowImages = [
                 'images/water-block.png',   // Top row is water
                 'images/stone-block.png',   // Row 1 of 3 of stone
@@ -154,7 +156,9 @@ var Engine = (function(global) {
         }
         renderEntities();
     }
+    function fadeOut() {
 
+    }
     /* This function is called by the render function and is called on each game
      * tick. It's purpose is to then call the render functions you have defined
      * on your enemy and player entities within app.js
@@ -167,7 +171,7 @@ var Engine = (function(global) {
             enemy.render();
         });
         deadEnemies.forEach(function(enemy) {
-            enemy.renderOut();
+            enemy.dieOut();
         });
         player.render();
     }

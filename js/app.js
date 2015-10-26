@@ -1,29 +1,87 @@
-// Sets initial level & score
-level = 4;
+// Sets initial level, score & lives
+// TODO: GAMEOVER SCREEN + HIGHSCORE
+level = 0;
 score = 0;
-// 
-    var alpha = 0,   /// current alpha value
-    delta = 0.1; /// delta = speed
-// Score keeping and level function
-var runLevel = function(score) {
-    console.log(score);
-    if (score >= 0) {
+var iniLives = 10;
+lives = iniLives;
+var runLevel = function(dead) {
+    // This function removes older enemies for the game still be playble
+    var removeEnemies = function (num) {
+    var enemiesLength = allEnemies.length;
+    deadEnemies = allEnemies.splice(0, enemiesLength);
+    }
+    if (dead == false) {
+    level++;
+    var enemyNum;
+    var speed;
+    if (level >= 0) {
+        enemyNum = 1;
+        speed = 300;
+    }
+    if (level >= 7) {
+        enemyNum = 3;
+        speed = 500;
+    }
+    if (level >= 10) {
+        enemyNum = 6;
+        speed = 600;
+    }
+    if (level >= 11) {
+        enemyNum = enemyNum+1;
+        speed = speed + 100;
+    }
+    if (level >= 7) {removeEnemies();}
+    insertEnemies(enemyNum, speed);
+    }
+    else {
+    if (lives == 0) {
         level = 1;
-        insertEnemies(1, 400);
-        score++
+        lives = iniLives;
+        removeEnemies();
+        enemyNum = 1;
+        speed = 300;
     }
-    if (score >= 5) {
-        level = 3;
-        removeEnemies(2); // TODO: Make them dissapear smooth
-        insertEnemies(2, 700);
-    }
-    if (score > 10) {
-        level = 4;
-        removeEnemies(3); // TODO: Make them dissapear smooth
-        insertEnemies(3, 1200);
+    insertEnemies(enemyNum, speed);
     }
     console.log(level);
 };
+// Score keeping and level function
+var showScore = function() {
+    ctx.globalAlpha = 1;
+  // First we clear the canvas
+  ctx.clearRect(0, 0, 505, 40);
+  // Set the font and the text
+  ctx.font="20px IMPACT";
+  ctx.fillText("Score:",10,40);
+  // We load the "score" variable
+  ctx.fillText(score,80,40);
+  ctx.fillText("Level:",150,40);
+  ctx.fillText(level,220,40);
+  ctx.fillText("Lives:",280,40);
+  ctx.fillText(lives,350,40);
+  /*    Achievements
+
+        Are unlocked according to the score
+        and what kind of pickups the player gets
+
+  */
+  // First Achievement 10 points
+  if (level > 9 && level < 20) {
+    ctx.fillText("WELCOME TO HELL",300,80);
+  }
+  // Second Achievement 30 points
+  if (level > 19 && level < 29) {
+    ctx.fillText("YOU ARE THE MAN",300,80);
+  }
+  // Third Achievement 100 points
+  if (level > 29 && level < 34) {
+    ctx.fillText("THIS MAY BE IMPOSSIBLE",300,80);
+  }
+  // Insane Achievement 1000 points
+  if (level > 35) {
+    ctx.fillText("OMG",300,80);
+  }
+}
 // Enemies that our hero must avoid.
 var Enemy = function (x, y, speed) {
     // Enemy positioning variables
@@ -34,7 +92,7 @@ var Enemy = function (x, y, speed) {
     // Random enemy speed multiplied according to the game difficulty
     this.speed = Math.random() * speed; // TODO: Speed variable that makes the speed changes as the player pass the "levels"
     // The image/sprite for our enemies, this uses a helper present in resources.js
-    return level < 3
+    return level < 10
         ? this.sprite = 'images/enemy-bug.png'
         : this.sprite = 'images/enemy-bug-devil.png';
 };
@@ -51,28 +109,32 @@ Enemy.prototype.update = function (dt) {
    this.y < player.y + minDistance &&
    minDistance + this.y > player.y) {
     resetGame(); // As the player collides the game resets
+    lives = lives -1;
+    runLevel(true);
 }
     return this.x <= 550 // This checks if the bug is in the screen
         ? this.x += this.speed * dt  // if true keeps moving
         : this.x = -98;     // if not on the screen move back to the beginning
 };
 // This makes the enemy disapear in smooth way
-Enemy.prototype.dieSmooth = function (dt) {
-  console.log("dieSmooth rodou");
-          return this.x <= 550 // This checks if the bug is in the screen
-        ? this.x += this.speed * dt  // if true keeps moving
-        : this.x = 7000;     // if not on the screen moves away
-}
 // This makes the render function available for both Enemy and Player objects
 Object.prototype.render = function () {
+    ctx.globalAlpha = 1;
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
-Object.prototype.renderOut = function () {
-  console.log("renderOut rodou");
-    ctx.clearRect(this.x, this.y, this.width, this.height);
-    if (alpha <= 0 || alpha >= 1) delta = -delta;
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+var fadeOutAlpha = 1; // Sets initial Alpha value
+Enemy.prototype.dieOut = function (dt) {
+            ctx.globalAlpha = fadeOutAlpha; // Takes back the alpha
+            ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+             if (fadeOutAlpha <= 0) {
+            score = score + deadEnemies.length; // Add score according to how many bugs go off the screen
+             deadEnemies = []; // clear the deadEnemies array
+             fadeOutAlpha = 1; // resets the alpha
+             }
+             else {
+             fadeOutAlpha = fadeOutAlpha - 0.005;
+            }
+             ctx.globalAlpha = fadeOutAlpha; // Apply new aplha
 };
 // Player Class
 var Player = function () {
@@ -99,11 +161,13 @@ Player.prototype.update = function () {
     }
     // Clear the variable in order to make this function work without repeating the movement every frame.
     this.keyPress = null;
-    //If get in the water add score and reset the game
+    //If get in the river add score and reset the game
     if (this.y < 25) {
+        score++;
         resetGame();
-        score++
-        runLevel(score);
+        score = score + deadEnemies.length;
+        runLevel(false);
+
     }
 };
 Player.prototype.handleInput = function (e) {
@@ -113,8 +177,8 @@ Player.prototype.handleInput = function (e) {
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
 var allEnemies = [];
-var deadEnemies = [];
-var globalEnemyCount = 0;
+var deadEnemies = []; // Dead Enemies will be here for animation
+var globalEnemyCount = 0; //Initial Enemy count
 var insertEnemies = function (enemiesQtd, speed) {
     var enemyCount = 0;
     // This sets the vertical position for the enemies
@@ -126,7 +190,7 @@ var insertEnemies = function (enemiesQtd, speed) {
             Math.floor(Math.random() * 3)]), speed));
         enemyCount++
         globalEnemyCount = globalEnemyCount + enemyCount;
-    }
+        }
 };
 runLevel(score);
 // This instantiate the Player
@@ -152,11 +216,3 @@ var resetGame = function () {
     player.y = 380;
     // TODO: Score update function
 };
-// This function removes older enemies for the game still be playble
-var removeEnemies = function (num) {
-    var deadEnemies = allEnemies.splice(0,num);
-    console.log("Live Enemies:");
-    console.log(allEnemies);
-    console.log("Dead Enemies:");
-    console.log(deadEnemies); 
-}
