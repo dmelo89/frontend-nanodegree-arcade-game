@@ -1,9 +1,9 @@
 // Sets initial level, score & lives
-// TODO: GAMEOVER SCREEN + HIGHSCORE
-level = 0;
-score = 0;
+var level = 0;
+var score = 0;
 var iniLives = 10;
-lives = iniLives;
+var lives = iniLives;
+var gameReset = 0; // Checks if the game restarted for clearing scores.
 var runLevel = function(dead) {
     // This function removes older enemies for the game still be playble
     var removeEnemies = function (num) {
@@ -11,6 +11,7 @@ var runLevel = function(dead) {
     deadEnemies = allEnemies.splice(0, enemiesLength);
     }
     if (dead == false) {
+    gameReset = 0;
     level++;
     var enemyNum;
     var speed;
@@ -37,6 +38,7 @@ var runLevel = function(dead) {
     if (lives == 0) {
         level = 1;
         lives = iniLives;
+        gameReset = 1;
         removeEnemies();
         enemyNum = 1;
         speed = 300;
@@ -48,39 +50,46 @@ var runLevel = function(dead) {
 // Score keeping and level function
 var showScore = function() {
     ctx.globalAlpha = 1;
-  // First we clear the canvas
-  ctx.clearRect(0, 0, 505, 40);
+    var clearCanvas = function (type) {
+        return type = 1 ?  ctx.clearRect(0, 0, 505, 40) : ctx.clearRect(300, 0, 150, 40);
+    }
+    var achievemenText = ""; // Empty this variable, if we just declare it will show "undefined"
+  // First we clear the canvas space
+  clearCanvas(1);
   // Set the font and the text
   ctx.font="20px IMPACT";
   ctx.fillText("Score:",10,40);
   // We load the "score" variable
   ctx.fillText(score,80,40);
-  ctx.fillText("Level:",150,40);
-  ctx.fillText(level,220,40);
-  ctx.fillText("Lives:",280,40);
-  ctx.fillText(lives,350,40);
+  ctx.fillText("Level:",105,40);
+  ctx.fillText(level,170,40);
+  ctx.fillText("Lives:",205,40);
+  ctx.fillText(lives,270,40);
   /*    Achievements
 
         Are unlocked according to the score
         and what kind of pickups the player gets
 
   */
-  // First Achievement 10 points
-  if (level > 9 && level < 20) {
-    ctx.fillText("WELCOME TO HELL",300,80);
-  }
-  // Second Achievement 30 points
-  if (level > 19 && level < 29) {
-    ctx.fillText("YOU ARE THE MAN",300,80);
-  }
-  // Third Achievement 100 points
-  if (level > 29 && level < 34) {
-    ctx.fillText("THIS MAY BE IMPOSSIBLE",300,80);
-  }
-  // Insane Achievement 1000 points
-  if (level > 35) {
-    ctx.fillText("OMG",300,80);
-  }
+  // First Achievement 10+ level
+  if (level >= 10 && level <= 14) {
+    var achievemenText = "WELCOME TO HELL";
+  };
+  // Second Achievement 15+ level
+  if (level >= 14 && level <= 29) {
+    var achievemenText = "IMPRESSIVE COMBO";
+  };
+  // Third Achievement 30+ level
+  if (level >= 29 && level <= 34) {
+    var achievemenText = "HELL MASTER";
+  };
+  // Insane Achievement 35+ level
+  if (level >= 35) {
+    var achievemenText = "OMG!";
+  };
+  // Achievement text
+  ctx.fillText(achievemenText,300,40);
+  console.log(achievemenText)
 }
 // Enemies that our hero must avoid.
 var Enemy = function (x, y, speed) {
@@ -124,10 +133,15 @@ Object.prototype.render = function () {
 };
 var fadeOutAlpha = 1; // Sets initial Alpha value
 Enemy.prototype.dieOut = function (dt) {
-            ctx.globalAlpha = fadeOutAlpha; // Takes back the alpha
+            ctx.globalAlpha = fadeOutAlpha; // Takes back the alpha for animation
             ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
              if (fadeOutAlpha <= 0) {
-            score = score + deadEnemies.length; // Add score according to how many bugs go off the screen
+                // Add score according to how many bugs go off the screen if the player is alive
+                if (gameReset == 0){
+            score = score + deadEnemies.length;
+            } else {
+                score = 0;
+            };
              deadEnemies = []; // clear the deadEnemies array
              fadeOutAlpha = 1; // resets the alpha
              }
