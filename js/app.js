@@ -174,9 +174,9 @@ Player.prototype.update      = function () {
         this.y = this.y + movementY;
     }
     // Clear the variable in order to make this function work without repeating the
-    //movement every frame.
+    // movement every frame.
     this.keyPress = null;
-    //If get in the river add score and reset the game
+    // If get in the river add score and reset the game
     if (this.y < 25) {
         score++;
         resetGame();
@@ -226,5 +226,4 @@ document
 var resetGame = function () {
     player.x = 200;
     player.y = 380;
-    // TODO: Score update function
 };
