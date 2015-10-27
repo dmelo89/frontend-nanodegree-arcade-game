@@ -102,6 +102,7 @@ var Enemy = function (x, y, speed) {
     // Random enemy speed multiplied according to the game difficulty
     this.speed  = Math.random() * speed;
     // The image/sprite for our enemies, this uses a helper present in resources.js
+    // if the level is higher then 10 the other image is loaded
     return level < 10
         ? this.sprite = 'images/enemy-bug.png'
         : this.sprite = 'images/enemy-bug-devil.png';
