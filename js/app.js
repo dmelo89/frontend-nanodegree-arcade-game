@@ -76,11 +76,11 @@ var showScore = function() {
     var achievemenText = "WELCOME TO HELL";
   };
   // Second Achievement 15+ level
-  if (level >= 14 && level <= 29) {
+  if (level >= 15 && level <= 24) {
     var achievemenText = "IMPRESSIVE COMBO";
   };
   // Third Achievement 30+ level
-  if (level >= 29 && level <= 34) {
+  if (level >= 25 && level <= 34) {
     var achievemenText = "HELL MASTER";
   };
   // Insane Achievement 35+ level
@@ -99,7 +99,7 @@ var Enemy = function (x, y, speed) {
     this.width = 98;
     this.height = 77;
     // Random enemy speed multiplied according to the game difficulty
-    this.speed = Math.random() * speed; // TODO: Speed variable that makes the speed changes as the player pass the "levels"
+    this.speed = Math.random() * speed;
     // The image/sprite for our enemies, this uses a helper present in resources.js
     return level < 10
         ? this.sprite = 'images/enemy-bug.png'
@@ -112,7 +112,6 @@ Enemy.prototype.update = function (dt) {
     var minDistance = 70; // Difference betwen the center point and the end of the bug, besides the file having 101px of width, the bug occupies only 98px of the image
     // Here we calculate with the variables if the enemy is close to the player X
     // and if in the same Y line
-    // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
     if (this.x < player.x + minDistance &&
    this.x + minDistance > player.x &&
    this.y < player.y + minDistance &&
